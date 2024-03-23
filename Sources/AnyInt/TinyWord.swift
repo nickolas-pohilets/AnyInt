@@ -1,12 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Nickolas Pokhylets on 22/03/2024.
-//
-
-import Foundation
-
 typealias SignedWord = Int64
 typealias UnsignedWord = UInt64
 

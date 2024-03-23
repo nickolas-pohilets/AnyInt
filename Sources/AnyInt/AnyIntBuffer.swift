@@ -1,12 +1,3 @@
-//
-//  AnyIntBuffer.swift
-//
-//
-//  Created by Nickolas Pokhylets on 22/03/2024.
-//
-
-import Foundation
-
 struct AnyIntBufferHeader {
     var count: Int
 }

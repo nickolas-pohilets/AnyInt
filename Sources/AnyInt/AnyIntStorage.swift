@@ -1,12 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Nickolas Pokhylets on 22/03/2024.
-//
-
-import Foundation
-
 enum AnyIntStorage: Hashable {
     case inline(TinyWord)
     case buffer(AnyIntBuffer)
@@ -20,8 +11,8 @@ enum AnyIntStorage: Hashable {
 
     func withWords<R>(_ body: (WordsView) throws -> R) rethrows -> R {
         switch self {
-        case .inline(let w63):
-            let value = w63.bitPattern
+        case .inline(let tiny):
+            let value = tiny.bitPattern
             return try withUnsafePointer(to: value) { ptr in
                 let view = WordsView(start: ptr, count: 1)
                 return try body(view)
@@ -36,8 +27,8 @@ enum AnyIntStorage: Hashable {
 
     var isNegative: Bool {
         switch self {
-        case .inline(let w63):
-            return w63.isNegative
+        case .inline(let tiny):
+            return tiny.isNegative
         case .buffer(let buffer):
             return buffer.isNegative
         }
@@ -45,14 +36,14 @@ enum AnyIntStorage: Hashable {
 
     var bitWidth: Int {
         switch self {
-        case .inline(let w63): return w63.bitWidth
+        case .inline(let tiny): return tiny.bitWidth
         case .buffer(let buffer): return buffer.bitWidth
         }
     }
 
     var inline: TinyWord? {
         switch self {
-        case .inline(let w63): return w63
+        case .inline(let tiny): return tiny
         case .buffer: return nil
         }
     }

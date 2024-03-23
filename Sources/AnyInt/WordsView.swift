@@ -1,12 +1,3 @@
-//
-//  WordsView.swift
-//
-//
-//  Created by Nickolas Pokhylets on 23/03/2024.
-//
-
-import Foundation
-
 struct WordsView {
     var start: UnsafePointer<UnsignedWord>
     var count: Int

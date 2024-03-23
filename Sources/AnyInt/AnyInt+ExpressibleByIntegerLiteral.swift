@@ -1,19 +1,10 @@
-//
-//  AnyInt+ExpressibleByIntegerLiteral.swift
-//
-//
-//  Created by Nickolas Pokhylets on 23/03/2024.
-//
-
-import Foundation
-
 @available(macOS 13.3, iOS 16.4, watchOS 9.4, tvOS 16.4, *)
 extension AnyInt: ExpressibleByIntegerLiteral {
     public typealias IntegerLiteralType = StaticBigInt
     public init(integerLiteral value: StaticBigInt) {
         if value.bitWidth <= TinyWord.bitWidth {
-            let w63 = TinyWord(bitPattern: value[wordIndex: 0])!
-            self.init(storage: .inline(w63))
+            let tiny = TinyWord(bitPattern: value[wordIndex: 0])!
+            self.init(storage: .inline(tiny))
         } else {
             let buffer = AnyIntBuffer.create(bits: value.bitWidth)
             buffer.withPointerToElements { words in
