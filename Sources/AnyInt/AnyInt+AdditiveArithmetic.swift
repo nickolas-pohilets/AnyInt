@@ -4,11 +4,7 @@ extension AnyInt: AdditiveArithmetic {
             lhs: lhs,
             rhs: rhs,
             tinyOp: (+),
-            wordOp: { a, b, carry in
-                let tmp1 = a.addingReportingOverflow(b)
-                let tmp2 = tmp1.partialValue.addingReportingOverflow(carry ? 1 : 0)
-                return (tmp2.partialValue, tmp1.overflow || tmp2.overflow)
-            }
+            wordOp: add
         )
     }
 
@@ -17,11 +13,7 @@ extension AnyInt: AdditiveArithmetic {
             lhs: lhs,
             rhs: rhs,
             tinyOp: (-),
-            wordOp: { a, b, carry in
-                let tmp1 = a.subtractingReportingOverflow(b)
-                let tmp2 = tmp1.partialValue.subtractingReportingOverflow(carry ? 1 : 0)
-                return (tmp2.partialValue, tmp1.overflow || tmp2.overflow)
-            }
+            wordOp: subtract
         )
     }
 
@@ -56,6 +48,16 @@ extension AnyInt: AdditiveArithmetic {
             }
         }
     }
+}
 
+func add(_ lhs: UnsignedWord, _ rhs: UnsignedWord, carry: Bool) -> (word: UnsignedWord, carry: Bool) {
+    let tmp1 = lhs.addingReportingOverflow(rhs)
+    let tmp2 = tmp1.partialValue.addingReportingOverflow(carry ? 1 : 0)
+    return (word: tmp2.partialValue, carry: tmp1.overflow || tmp2.overflow)
+}
 
+func subtract(_ lhs: UnsignedWord, _ rhs: UnsignedWord, borrow: Bool) -> (word: UnsignedWord, borrow: Bool) {
+    let tmp1 = lhs.subtractingReportingOverflow(rhs)
+    let tmp2 = tmp1.partialValue.subtractingReportingOverflow(borrow ? 1 : 0)
+    return (word: tmp2.partialValue, borrow: tmp1.overflow || tmp2.overflow)
 }
