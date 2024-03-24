@@ -3,9 +3,9 @@ import XCTest
 
 final class AnyIntTests: XCTestCase {
     func testMemoryLayout() throws {
-        XCTAssertEqual(MemoryLayout<TinyWord>.size, MemoryLayout<UInt64>.size)
-        XCTAssertEqual(MemoryLayout<TinyWord?>.size, MemoryLayout<UInt64>.size)
-        XCTAssertEqual(MemoryLayout<AnyInt>.size, MemoryLayout<UInt64>.size)
+        XCTAssertEqual(MemoryLayout<TinyWord>.size, MemoryLayout<UnsignedWord>.size)
+        XCTAssertEqual(MemoryLayout<TinyWord?>.size, MemoryLayout<UnsignedWord>.size)
+        XCTAssertEqual(MemoryLayout<AnyInt>.size, MemoryLayout<UnsignedWord>.size)
     }
 
     func testTinyWord() throws {
@@ -14,11 +14,11 @@ final class AnyIntTests: XCTestCase {
         XCTAssertNil(TinyWord(rawValue: -0x4000000000000001))
         XCTAssertNil(TinyWord(rawValue: -0x7fffffffffffffff - 1))
 
-        let valid: [Int64] = [0, 1, -1, 0x3fffffffffffffff, -0x4000000000000000]
+        let valid: [SignedWord] = [0, 1, -1, 0x3fffffffffffffff, -0x4000000000000000]
         for value in valid {
             let tiny = TinyWord(rawValue: value)
             XCTAssertEqual(tiny?.rawValue, value)
-            XCTAssertEqual(unsafeBitCast(try XCTUnwrap(tiny), to: Int64.self), value & Int64.max)
+            XCTAssertEqual(unsafeBitCast(try XCTUnwrap(tiny), to: SignedWord.self), value & SignedWord.max)
         }
 
         XCTAssertEqual(unsafeBitCast(TinyWord?.none, to: Int64.self), Int64.min)
@@ -28,15 +28,15 @@ final class AnyIntTests: XCTestCase {
     func testIntegerLiteral() throws {
         guard #available(macOS 13.3, *) else { throw XCTSkip() }
         var a: AnyInt = 0
-        XCTAssertEqual(a, AnyInt(Int64(0)))
+        XCTAssertEqual(a, AnyInt(SignedWord(0)))
         a = -1
-        XCTAssertEqual(a, AnyInt(Int64(-1)))
+        XCTAssertEqual(a, AnyInt(SignedWord(-1)))
         a = 1
-        XCTAssertEqual(a, AnyInt(Int64(1)))
+        XCTAssertEqual(a, AnyInt(SignedWord(1)))
         a = 0x3fffffffffffffff
-        XCTAssertEqual(a, AnyInt(Int64(0x3fffffffffffffff)))
+        XCTAssertEqual(a, AnyInt(SignedWord(0x3fffffffffffffff)))
         a = -0x4000000000000000
-        XCTAssertEqual(a, AnyInt(Int64(-0x4000000000000000)))
+        XCTAssertEqual(a, AnyInt(SignedWord(-0x4000000000000000)))
 
         a = 0x4000000000000000
         XCTAssertEqual(a.storage.buffer?.count, 1)

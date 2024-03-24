@@ -1,6 +1,13 @@
 struct WordsView {
-    var start: UnsafePointer<UnsignedWord>
-    var count: Int
+    var buffer: UnsafeBufferPointer<UnsignedWord>
+
+    init(start: UnsafePointer<UnsignedWord>, count: Int) {
+        self.buffer = .init(start: start, count: count)
+    }
+
+    var count: Int {
+        buffer.count
+    }
 
     var isNegative: Bool {
         return signWord < 0
@@ -11,12 +18,12 @@ struct WordsView {
     }
 
     var signWord: SignedWord {
-        return SignedWord(bitPattern: start[count - 1])
+        return SignedWord(bitPattern: buffer[count - 1])
     }
 
     subscript(_ index: Int) -> UnsignedWord {
         if index < count {
-            return start[index]
+            return buffer[index]
         } else {
             return isNegative ? .max : 0
         }

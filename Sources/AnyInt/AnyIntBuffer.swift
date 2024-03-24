@@ -73,7 +73,7 @@ class AnyIntBuffer: ManagedBuffer<AnyIntBufferHeader, UnsignedWord>, Hashable {
         let filling: UnsignedWord = isNegative ? .max : 0
         return self.withUnsafeMutablePointers { (header, elements) in
             var k = header.pointee.count
-            while k > 1 && elements[k - 1] == filling && isNegative == (Int64(bitPattern: elements[k - 2]) < 0) {
+            while k > 1 && elements[k - 1] == filling && isNegative == (SignedWord(bitPattern: elements[k - 2]) < 0) {
                 k -= 1
             }
             header.pointee.count = k

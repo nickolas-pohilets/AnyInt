@@ -9,6 +9,73 @@ enum AnyIntStorage: Hashable {
         }
     }
 
+    static func create<W: RandomAccessCollection<UnsignedWord>>(words: W, isSigned: Bool) -> Self where W.Index == Int {
+        if isSigned {
+            return create(signed: words)
+        } else {
+            return create(unsigned: words)
+        }
+    }
+
+    static func create<W: RandomAccessCollection<UnsignedWord>>(signed words: W) -> Self where W.Index == Int {
+        if words.isEmpty {
+            return .inline(.zero)
+        }
+        let isNegative = SignedWord(bitPattern: words[words.count - 1]) < 0
+        let filler: UnsignedWord = isNegative ? .max : 0
+        var k: Int = words.count
+        while k > 1 && words[k - 1] == filler && (SignedWord(bitPattern: words[k - 2]) < 0) == isNegative {
+            k -= 1
+        }
+        if k == 1 {
+            let value = SignedWord(bitPattern: words[0])
+            if let tiny = TinyWord(rawValue: value) {
+                return .inline(tiny)
+            }
+        }
+        let bitWidth = (k - 1) * UnsignedWord.bitWidth + SignedWord(bitPattern: words[k - 1]).usedBits
+        let buffer = AnyIntBuffer.create(bits: bitWidth)
+        buffer.withPointerToElements { elements in
+            for i in 0..<elements.count {
+                if i < k {
+                    elements[i] = words[i]
+                } else {
+                    elements[i] = filler
+                }
+            }
+        }
+        return .buffer(buffer)
+    }
+
+    static func create<W: RandomAccessCollection<UnsignedWord>>(unsigned words: W) -> Self where W.Index == Int {
+        var k: Int = words.count
+        while k > 0 && words[k - 1] == 0 {
+            k -= 1
+        }
+        if k == 0 {
+            return .inline(.zero)
+        }
+        if k == 1 {
+            if let value = SignedWord(exactly: words[0]) {
+                if let tiny = TinyWord(rawValue: value) {
+                    return .inline(tiny)
+                }
+            }
+        }
+        let bitWidth = k * UnsignedWord.bitWidth - words[k - 1].leadingZeroBitCount + 1
+        let buffer = AnyIntBuffer.create(bits: bitWidth)
+        buffer.withPointerToElements { elements in
+            for i in 0..<elements.count {
+                if i < k {
+                    elements[i] = words[i]
+                } else {
+                    elements[i] = 0
+                }
+            }
+        }
+        return .buffer(buffer)
+    }
+
     func withWords<R>(_ body: (WordsView) throws -> R) rethrows -> R {
         switch self {
         case .inline(let tiny):

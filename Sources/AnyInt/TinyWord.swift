@@ -1,21 +1,37 @@
-typealias SignedWord = Int64
-typealias UnsignedWord = UInt64
+public typealias SignedWord = Int
+public typealias UnsignedWord = UInt
 
 struct TinyWord: Hashable, RawRepresentable {
-    var a: UInt32
-    var b: UInt16
-    var c: UInt8
-    var d: UInt7
+#if _pointerBitWidth(_64)
+    var x32: UInt32
+    var x16: UInt16
+    var x8: UInt8
+    var x7: UInt7
+#elseif _pointerBitWidth(_32)
+    var x16: UInt16
+    var x8: UInt8
+    var x7: UInt7
+#else
+#error("Unknown platform")
+#endif
 
-    static var bitWidth: Int { 63 }
+    static var bitWidth: Int { SignedWord.bitWidth - 1 }
 
     static var zero: Self { .init() }
 
     private init() {
-        a = 0
-        b = 0
-        c = 0
-        d = .x0000000
+#if _pointerBitWidth(_64)
+        x32 = 0
+        x16 = 0
+        x8 = 0
+        x7 = .x0000000
+#elseif _pointerBitWidth(_32)
+        x16 = 0
+        x8 = 0
+        x7 = .x0000000
+#else
+#error("Unknown platform")
+#endif
     }
 
     init?(bitPattern: UnsignedWord) {
@@ -23,15 +39,20 @@ struct TinyWord: Hashable, RawRepresentable {
     }
 
     init?(rawValue: SignedWord) {
-        let maxMagnitude: Int64 = (1 << 62)
+        let maxMagnitude: SignedWord = (1 << (SignedWord.bitWidth - 2))
         if rawValue >= maxMagnitude || rawValue < -maxMagnitude { return nil }
-        let bit63 = (rawValue & (1 << 63)) != 0
-        let bit62 = (rawValue & (1 << 62)) != 0
-        if bit62 != bit63 { return nil }
-        a = UInt32(truncatingIfNeeded: rawValue)
-        b = UInt16(truncatingIfNeeded: rawValue >> 32)
-        c = UInt8(truncatingIfNeeded: rawValue >> 48)
-        d = UInt7(rawValue: UInt8(truncatingIfNeeded: rawValue >> 56) & 0x7F)!
+#if _pointerBitWidth(_64)
+        x32 = UInt32(truncatingIfNeeded: rawValue)
+        x16 = UInt16(truncatingIfNeeded: rawValue >> 32)
+        x8 = UInt8(truncatingIfNeeded: rawValue >> 48)
+        x7 = UInt7(rawValue: UInt8(truncatingIfNeeded: rawValue >> 56) & 0x7F)!
+#elseif _pointerBitWidth(_32)
+        x16 = UInt16(truncatingIfNeeded: rawValue)
+        x8 = UInt8(truncatingIfNeeded: rawValue >> 16)
+        x7 = UInt7(rawValue: UInt8(truncatingIfNeeded: rawValue >> 24) & 0x7F)!
+#else
+#error("Unknown platform")
+#endif
     }
 
     var bitWidth: Int {
@@ -39,15 +60,24 @@ struct TinyWord: Hashable, RawRepresentable {
     }
 
     var isNegative: Bool {
-        (d.rawValue & 0x40) != 0
+        (x7.rawValue & 0x40) != 0
     }
 
     var bitPattern: UnsignedWord {
-        var bitPattern = UnsignedWord(a)
-        bitPattern |= UnsignedWord(b) << 32
-        bitPattern |= UnsignedWord(c) << 48
-        bitPattern |= UnsignedWord(d.rawValue) << 56
-        bitPattern |= UnsignedWord(d.rawValue & 0x40) << 57
+#if _pointerBitWidth(_64)
+        var bitPattern = UnsignedWord(x32)
+        bitPattern |= UnsignedWord(x16) << 32
+        bitPattern |= UnsignedWord(x8) << 48
+        bitPattern |= UnsignedWord(x7.rawValue) << 56
+        bitPattern |= UnsignedWord(x7.rawValue & 0x40) << 57
+#elseif _pointerBitWidth(_32)
+        var bitPattern = UnsignedWord(x16)
+        bitPattern |= UnsignedWord(x8) << 16
+        bitPattern |= UnsignedWord(x7.rawValue) << 24
+        bitPattern |= UnsignedWord(x7.rawValue & 0x40) << 25
+#else
+#error("Unknown platform")
+#endif
         return bitPattern
     }
 
