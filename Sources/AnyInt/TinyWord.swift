@@ -100,7 +100,7 @@ struct TinyWord: Hashable, RawRepresentable {
 
 extension SignedWord {
     var usedBits: Int {
-        if self > 0 {
+        if self >= 0 {
             return Self.bitWidth - self.leadingZeroBitCount + 1
         } else {
             return Self.bitWidth - (~self).leadingZeroBitCount + 1

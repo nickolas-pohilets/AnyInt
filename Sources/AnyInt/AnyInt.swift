@@ -1,5 +1,5 @@
 // SignedInteger, LosslessStringConvertible
-public struct AnyInt: Hashable {
+public struct AnyInt: Hashable, SignedInteger {
     var storage: AnyIntStorage
 
     public static var zero: Self { .init(storage: .inline(.zero)) }

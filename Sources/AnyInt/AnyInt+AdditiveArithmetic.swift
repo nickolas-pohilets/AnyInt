@@ -30,7 +30,7 @@ extension AnyInt: AdditiveArithmetic {
         }
         return lhs.storage.withWords { lhsView in
             return rhs.storage.withWords { rhsView in
-                let bits = max(lhsView.bitWidth, rhsView.bitWidth) + (lhsView.isNegative == rhsView.isNegative ? 1 : 0)
+                let bits = Swift.max(lhsView.bitWidth, rhsView.bitWidth) + (lhsView.isNegative == rhsView.isNegative ? 1 : 0)
                 let resultBuffer = AnyIntBuffer.create(bits: bits)
                 resultBuffer.withPointerToElements { result in
                     var carry: Bool = false

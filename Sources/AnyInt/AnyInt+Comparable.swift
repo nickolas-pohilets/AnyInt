@@ -1,4 +1,8 @@
 extension AnyInt: Comparable {
+    public static func == (lhs: AnyInt, rhs: AnyInt) -> Bool {
+        return lhs.storage == rhs.storage
+    }
+
     public static func < (lhs: AnyInt, rhs: AnyInt) -> Bool {
         if case (.inline(let lhsTiny), .inline(let rhsTiny)) = (lhs.storage, rhs.storage) {
             return lhsTiny.rawValue < rhsTiny.rawValue
