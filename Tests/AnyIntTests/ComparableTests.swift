@@ -37,4 +37,14 @@ final class ComparableTests: XCTestCase {
         XCTAssertLessThan(AnyInt(integerLiteral: -0xa_0000000000000001), AnyInt(integerLiteral: -0xa_0000000000000000))
         XCTAssertLessThan(AnyInt(integerLiteral: -0xa_0000000000000000), AnyInt(integerLiteral: -0x9_ffffffffffffffff))
     }
+
+    func testDenormalize() throws {
+        let buffer = AnyIntBuffer.create(bits: 100)
+        buffer.withPointerToElements { elements in
+            for i in 0..<elements.count {
+                elements[i] = 0
+            }
+        }
+        XCTAssertNotEqual(AnyInt.zero, AnyInt(storage: .buffer(buffer)))
+    }
 }
