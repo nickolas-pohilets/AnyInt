@@ -96,4 +96,50 @@ final class BinaryIntegerTests: XCTestCase {
         verify(0, 432432488344537483526678, expected: 432432488344537483526678)
         verify(0x3fab452f62705627fedbac34381fde6438, 0x3652fdea736283586341582483927365252738262525, expected: 0x3652fdea735d281d4c232872a46ca8c9111f27f8411d)
     }
+
+    func testShift() throws {
+        guard #available(macOS 13.3, *) else { throw XCTSkip() }
+        func verify(_ value: AnyInt, shift: Int, left: AnyInt, right: AnyInt) {
+            do {
+                let t = value << shift
+                XCTAssertEqual(t, left)
+                XCTAssertEqual(t >> shift, value)
+                XCTAssertEqual((value >> shift).hexDescription, right.hexDescription)
+                var tmp = value
+                tmp <<= shift
+                XCTAssertEqual(tmp, left)
+                tmp >>= shift
+                XCTAssertEqual(tmp, value)
+                tmp >>= shift
+                XCTAssertEqual(tmp, right)
+            }
+            do {
+                let t = value >> -shift
+                XCTAssertEqual(t, left)
+                XCTAssertEqual(t << -shift, value)
+                XCTAssertEqual(value << -shift, right)
+                var tmp = value
+                tmp >>= -shift
+                XCTAssertEqual(tmp, left)
+                tmp <<= -shift
+                XCTAssertEqual(tmp, value)
+                tmp <<= -shift
+                XCTAssertEqual(tmp, right)
+            }
+        }
+        verify(0, shift: 5, left: 0, right: 0)
+        verify(-1, shift: 5, left: -32, right: -1)
+        verify(10, shift: 5, left: 320, right: 0)
+        verify(-10, shift: 5, left: -320, right: -1)
+        verify(1, shift: 100, left: 0x10000000000000000000000000, right: 0)
+        verify(1, shift: 101, left: 0x20000000000000000000000000, right: 0)
+        verify(0x8aceacc473287dfaec625a6352d5dea7b85cb823786276372ffef3821, shift: 72,
+                left: 0x8aceacc473287dfaec625a6352d5dea7b85cb823786276372ffef3821000000000000000000,
+                right: 0x8aceacc473287dfaec625a6352d5dea7b85cb82
+        )
+        verify(-0x8aceacc473287dfaec625a6352d5dea7b85cb823786276372ffef3821, shift: 72,
+                left: -0x8aceacc473287dfaec625a6352d5dea7b85cb823786276372ffef3821000000000000000000,
+                right: -0x8aceacc473287dfaec625a6352d5dea7b85cb83
+        )
+    }
 }

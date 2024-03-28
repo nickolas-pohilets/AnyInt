@@ -59,7 +59,7 @@ extension AnyInt: BinaryInteger {
         switch x.storage {
         case .inline(let tiny):
             let result = TinyWord(bitPattern: ~tiny.bitPattern)!
-            return AnyInt(storage: .inline(result))
+            return AnyInt(inline: result)
         case .buffer(let buffer):
             let result = AnyIntBuffer.create(bits: x.bitWidth)
             result.withPointerToElements { elements in
@@ -69,7 +69,7 @@ extension AnyInt: BinaryInteger {
                     }
                 }
             }
-            return AnyInt(storage: .buffer(result))
+            return AnyInt(buffer: result)
         }
     }
 
@@ -111,11 +111,32 @@ extension AnyInt: BinaryInteger {
     }
 
     public static func >>= <RHS: BinaryInteger>(lhs: inout AnyInt, rhs: RHS) {
-        fatalError()
+        lhs = lhs.shift(by: -Int(exactly: rhs)!)
     }
 
     public static func <<= <RHS: BinaryInteger>(lhs: inout AnyInt, rhs: RHS) {
-        fatalError()
+        lhs = lhs.shift(by: +Int(exactly: rhs)!)
+    }
+
+    private func shift(by bits: Int) -> AnyInt {
+        let bitWidth = self.bitWidth + bits
+        if bitWidth <= 0 {
+            return self.isNegative ? .minusOne : .zero
+        }
+        return self.storage.withWords { words in
+            if bitWidth <= TinyWord.bitWidth {
+                let tiny = TinyWord(bitPattern: words[bitOffset: -bits])!
+                return AnyInt(inline: tiny)
+            }
+
+            let buffer = AnyIntBuffer.create(bits: bitWidth)
+            buffer.withPointerToElements { elements in
+                for i in 0..<elements.count {
+                    elements[i] = words[bitOffset: i * UnsignedWord.bitWidth - bits]
+                }
+            }
+            return AnyInt(buffer: buffer)
+        }
     }
 
     public func dividing(_ dividend: AnyInt) -> (quotient: AnyInt, remainder: AnyInt) {

@@ -22,10 +22,23 @@ struct WordsView {
     }
 
     subscript(_ index: Int) -> UnsignedWord {
-        if index < count {
-            return buffer[index]
-        } else {
+        if index >= count {
             return isNegative ? .max : 0
         }
+        if index < 0 {
+            return 0
+        }
+        return buffer[index]
+    }
+
+    subscript(bitOffset bitOffset: Int) -> UnsignedWord {
+        let bits = bitOffset % UnsignedWord.bitWidth
+        let lowIndex = bitOffset / UnsignedWord.bitWidth
+        if bits == 0 {
+            return self[lowIndex]
+        }
+        let low = self[lowIndex]
+        let high = self[lowIndex + 1]
+        return (low >> bits) | (high << (UnsignedWord.bitWidth - bits))
     }
 }

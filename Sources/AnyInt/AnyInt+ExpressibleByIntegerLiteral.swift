@@ -4,7 +4,7 @@ extension AnyInt: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: StaticBigInt) {
         if value.bitWidth <= TinyWord.bitWidth {
             let tiny = TinyWord(bitPattern: value[0])!
-            self.init(storage: .inline(tiny))
+            self.init(inline: tiny)
         } else {
             let buffer = AnyIntBuffer.create(bits: value.bitWidth)
             buffer.withPointerToElements { words in
@@ -12,7 +12,7 @@ extension AnyInt: ExpressibleByIntegerLiteral {
                     words[i] = value[i]
                 }
             }
-            self.init(storage: .buffer(buffer))
+            self.init(buffer: buffer)
         }
     }
 }

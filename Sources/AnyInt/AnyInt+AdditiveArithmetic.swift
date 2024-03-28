@@ -41,9 +41,9 @@ extension AnyInt: AdditiveArithmetic {
                     }
                 }
                 if let tiny = resultBuffer.truncate() {
-                    return Self(storage: .inline(tiny))
+                    return Self(inline: tiny)
                 } else {
-                    return Self(storage: .buffer(resultBuffer))
+                    return Self(buffer: resultBuffer)
                 }
             }
         }

@@ -32,7 +32,7 @@ extension AnyInt: Numeric {
                 elements[0] = result.low
                 elements[1] = UnsignedWord(bitPattern: result.high)
             }
-            return Self(storage: .buffer(buffer))
+            return Self(buffer: buffer)
         }
 
         // Check zero separately, because that's the only way result can be smaller then any of the arguments
@@ -121,6 +121,6 @@ extension AnyInt: Numeric {
                 }
             }
         }
-        return Self(storage: .buffer(buffer))
+        return Self(buffer: buffer)
     }
 }

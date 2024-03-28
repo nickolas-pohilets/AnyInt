@@ -1,11 +1,16 @@
-// SignedInteger, LosslessStringConvertible
 public struct AnyInt: Hashable, SignedInteger {
     var storage: AnyIntStorage
 
-    public static var zero: Self { .init(storage: .inline(.zero)) }
+    public static var zero: Self { .init(inline: .zero) }
+    public static var one: Self { .init(inline: TinyWord(rawValue: 1)!) }
+    public static var minusOne: Self { .init(inline: TinyWord(rawValue: -1)!) }
 
-    init(storage: AnyIntStorage) {
-        self.storage = storage
+    init(inline tiny: TinyWord) {
+        self.storage = .inline(tiny)
+    }
+
+    init(buffer: AnyIntBuffer) {
+        self.storage = .buffer(buffer)
     }
 
     public init(_ value: SignedWord) {
