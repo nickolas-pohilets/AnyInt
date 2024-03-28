@@ -58,4 +58,42 @@ final class BinaryIntegerTests: XCTestCase {
         verify(0, -432432488344537483526678, expected: .zero)
         verify(0x3fab452f62705627fedbac34381fde6438, 0x3652fdea736283586341582483927365252738262525, expected: 0x2283402340500403925324242018062420)
     }
+
+    func testBitwiseOr() throws {
+        guard #available(macOS 13.3, *) else { throw XCTSkip() }
+        func verify(_ lhs: AnyInt, _ rhs: AnyInt, expected: AnyInt) {
+            XCTAssertEqual((lhs | rhs).hexDescription, expected.hexDescription)
+            XCTAssertEqual((rhs | lhs).hexDescription, expected.hexDescription)
+            var tmp = lhs
+            tmp |= rhs
+            XCTAssertEqual(tmp.hexDescription, expected.hexDescription)
+            tmp = rhs
+            tmp |= lhs
+            XCTAssertEqual(tmp.hexDescription, expected.hexDescription)
+        }
+
+        verify(0x0c26e4, -0x81a0b /* 0xfff7e5f5 */, expected: -0x180b)
+        verify(-1, 432432488344537483526678, expected: -1)
+        verify(0, -432432488344537483526678, expected: -432432488344537483526678)
+        verify(0x3fab452f62705627fedbac34381fde6438, 0x3652fdea736283586341582483927365252738262525, expected: 0x3652fdea737fab5d6f637876a7fefbed353f3ffe653d)
+    }
+
+    func testBitwiseXor() throws {
+        guard #available(macOS 13.3, *) else { throw XCTSkip() }
+        func verify(_ lhs: AnyInt, _ rhs: AnyInt, expected: AnyInt) {
+            XCTAssertEqual((lhs ^ rhs).hexDescription, expected.hexDescription)
+            XCTAssertEqual((rhs ^ lhs).hexDescription, expected.hexDescription)
+            var tmp = lhs
+            tmp ^= rhs
+            XCTAssertEqual(tmp.hexDescription, expected.hexDescription)
+            tmp = rhs
+            tmp ^= lhs
+            XCTAssertEqual(tmp.hexDescription, expected.hexDescription)
+        }
+
+        verify(0x0c26e4, -0x81a0b /* 0xfff7e5f5 */, expected: -0x43cef)
+        verify(-1, 432432488344537483526678, expected: -432432488344537483526679)
+        verify(0, 432432488344537483526678, expected: 432432488344537483526678)
+        verify(0x3fab452f62705627fedbac34381fde6438, 0x3652fdea736283586341582483927365252738262525, expected: 0x3652fdea735d281d4c232872a46ca8c9111f27f8411d)
+    }
 }
