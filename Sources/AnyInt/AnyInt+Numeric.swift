@@ -32,7 +32,7 @@ extension AnyInt: Numeric {
                 elements[0] = result.low
                 elements[1] = UnsignedWord(bitPattern: result.high)
             }
-            return Self(buffer: buffer)
+            return Self(normalised: buffer)
         }
 
         // Check zero separately, because that's the only way result can be smaller then any of the arguments
@@ -105,7 +105,7 @@ extension AnyInt: Numeric {
                         var borrow: Bool = false
                         for j in 0..<(elements.count - lhsWords.count) {
                             let t = subtract(elements[lhsWords.count + j], rhsWords[j], borrow: borrow)
-                            elements[lhsWords.count + j] = t.word
+                            elements[lhsWords.count + j] = t.partialValue
                             borrow = t.borrow
                         }
                     }
@@ -114,13 +114,13 @@ extension AnyInt: Numeric {
                         var borrow: Bool = false
                         for i in 0..<(elements.count - rhsWords.count) {
                             let t = subtract(elements[rhsWords.count + i], lhsWords[i], borrow: borrow)
-                            elements[rhsWords.count + i] = t.word
+                            elements[rhsWords.count + i] = t.partialValue
                             borrow = t.borrow
                         }
                     }
                 }
             }
         }
-        return Self(buffer: buffer)
+        return Self(normalised: buffer)
     }
 }

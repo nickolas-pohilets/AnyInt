@@ -40,24 +40,21 @@ extension AnyInt: AdditiveArithmetic {
                         carry = r.1
                     }
                 }
-                if let tiny = resultBuffer.truncate() {
-                    return Self(inline: tiny)
-                } else {
-                    return Self(buffer: resultBuffer)
-                }
+                return Self(normalising: resultBuffer)
             }
         }
     }
 }
 
-func add(_ lhs: UnsignedWord, _ rhs: UnsignedWord, carry: Bool) -> (word: UnsignedWord, carry: Bool) {
+func add(_ lhs: UnsignedWord, _ rhs: UnsignedWord, carry: Bool) -> (partialValue: UnsignedWord, carry: Bool) {
     let tmp1 = lhs.addingReportingOverflow(rhs)
     let tmp2 = tmp1.partialValue.addingReportingOverflow(carry ? 1 : 0)
-    return (word: tmp2.partialValue, carry: tmp1.overflow || tmp2.overflow)
+    return (partialValue: tmp2.partialValue, carry: tmp1.overflow || tmp2.overflow)
 }
 
-func subtract(_ lhs: UnsignedWord, _ rhs: UnsignedWord, borrow: Bool) -> (word: UnsignedWord, borrow: Bool) {
+func subtract(_ lhs: UnsignedWord, _ rhs: UnsignedWord, borrow: Bool) -> (partialValue: UnsignedWord, borrow: Bool) {
     let tmp1 = lhs.subtractingReportingOverflow(rhs)
     let tmp2 = tmp1.partialValue.subtractingReportingOverflow(borrow ? 1 : 0)
-    return (word: tmp2.partialValue, borrow: tmp1.overflow || tmp2.overflow)
+    return (partialValue: tmp2.partialValue, borrow: tmp1.overflow || tmp2.overflow)
 }
+

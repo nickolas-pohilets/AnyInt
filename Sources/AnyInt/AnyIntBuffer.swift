@@ -2,7 +2,17 @@ struct AnyIntBufferHeader {
     var count: Int
 }
 
-class AnyIntBuffer: ManagedBuffer<AnyIntBufferHeader, UnsignedWord>, Hashable {
+final class AnyIntBuffer: ManagedBuffer<AnyIntBufferHeader, UnsignedWord>, Hashable, CustomReflectable {
+    var customMirror: Mirror {
+        withWords { words in
+            Mirror(
+                self,
+                unlabeledChildren: (0..<words.count).map { words[$0] },
+                displayStyle: .collection
+            )
+        }
+    }
+
     static func create(bits: Int) -> AnyIntBuffer {
         let words = (bits + UnsignedWord.bitWidth - 1) / UnsignedWord.bitWidth
         let buffer = AnyIntBuffer.create(minimumCapacity: words) { _ in

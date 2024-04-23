@@ -2,18 +2,20 @@
 extension AnyInt: ExpressibleByIntegerLiteral {
     public typealias IntegerLiteralType = StaticBigInt
     public init(integerLiteral value: StaticBigInt) {
-        if value.bitWidth <= TinyWord.bitWidth {
+        let bitWidth = value.bitWidth
+        if bitWidth <= TinyWord.bitWidth {
             let tiny = TinyWord(bitPattern: value[0])!
             self.init(inline: tiny)
         } else {
-            let buffer = AnyIntBuffer.create(bits: value.bitWidth)
+            let buffer = AnyIntBuffer.create(bits: bitWidth)
             buffer.withPointerToElements { words in
                 for i in 0..<words.count {
                     words[i] = value[i]
                 }
             }
-            self.init(buffer: buffer)
+            self.init(normalised: buffer)
         }
+        assert(self.bitWidth == bitWidth)
     }
 }
 

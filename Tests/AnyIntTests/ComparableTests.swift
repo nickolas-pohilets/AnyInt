@@ -45,6 +45,6 @@ final class ComparableTests: XCTestCase {
                 elements[i] = 0
             }
         }
-        XCTAssertNotEqual(AnyInt.zero, AnyInt(buffer: buffer))
+        XCTAssertNotEqual(AnyInt.zero, AnyInt(normalised: buffer))
     }
 }

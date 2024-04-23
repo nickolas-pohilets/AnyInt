@@ -9,8 +9,16 @@ public struct AnyInt: Hashable, SignedInteger {
         self.storage = .inline(tiny)
     }
 
-    init(buffer: AnyIntBuffer) {
+    init(normalised buffer: AnyIntBuffer) {
         self.storage = .buffer(buffer)
+    }
+
+    init(normalising buffer: AnyIntBuffer) {
+        if let tiny = buffer.truncate() {
+            self.storage = .inline(tiny)
+        } else {
+            self.storage = .buffer(buffer)
+        }
     }
 
     public init(_ value: SignedWord) {
@@ -38,7 +46,7 @@ public struct AnyInt: Hashable, SignedInteger {
 
     var hexDescription: String {
         storage.withWords { words in
-            (0..<words.count).reversed().map { i in
+            "0x" + (0..<words.count).reversed().map { i in
                 String(words[i], radix: 16, uppercase: false)
             }.joined(separator: "_")
         }

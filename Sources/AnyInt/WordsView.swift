@@ -5,6 +5,10 @@ struct WordsView {
         self.buffer = .init(start: start, count: count)
     }
 
+    init(_ buffer: UnsafeMutableBufferPointer<UnsignedWord>) {
+        self.buffer = UnsafeBufferPointer(buffer)
+    }
+
     var count: Int {
         buffer.count
     }

@@ -142,4 +142,29 @@ final class BinaryIntegerTests: XCTestCase {
                 right: -0x8aceacc473287dfaec625a6352d5dea7b85cb83
         )
     }
+
+    func testDivision() throws {
+        guard #available(macOS 13.3, *) else { throw XCTSkip() }
+        func verifyImpl(_ dividend: AnyInt, _ divisor: AnyInt, quotient: AnyInt, remainder: AnyInt) {
+            do {
+                let (q, r) = divisor.dividing(dividend)
+                XCTAssertEqual(q.hexDescription, quotient.hexDescription, "\(dividend.hexDescription) / \(divisor.hexDescription)")
+                XCTAssertEqual(r.hexDescription, remainder.hexDescription, "\(dividend.hexDescription) % \(divisor.hexDescription)")
+            }
+        }
+
+        func verify(_ dividend: AnyInt, divisor: AnyInt, quotient: AnyInt, remainder: AnyInt) {
+            verifyImpl(dividend, divisor, quotient: quotient, remainder: remainder)
+            verifyImpl(dividend, -divisor, quotient: -quotient, remainder: remainder)
+            verifyImpl(-dividend, divisor, quotient: -quotient, remainder: -remainder)
+            verifyImpl(-dividend, -divisor, quotient: quotient, remainder: -remainder)
+        }
+
+        verify(0x3fffffffffffffff, divisor: 1, quotient: 0x3fffffffffffffff, remainder: 0)
+        verify(0x4000000000000000, divisor: 1, quotient: 0x4000000000000000, remainder: 0)
+        verify(0x3fffffffffffffff, divisor: 7, quotient: 0x924924924924924, remainder: 3)
+        verify(0x7fffffffffffffff, divisor: 1, quotient: 0x7fffffffffffffff, remainder: 0)
+        verify(0x8000000000000000, divisor: 1, quotient: 0x8000000000000000, remainder: 0)
+        verify(0x7688c8b373d86489f362fcc72dd74724a1a044e3c17a, divisor: 0x219842895789347598374981, quotient: 0x387426127469123098308, remainder: 0x37272)
+    }
 }
