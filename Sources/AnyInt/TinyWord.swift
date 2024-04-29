@@ -1,7 +1,15 @@
+#if MICRO_WORD
+public typealias SignedWord = Int8
+public typealias UnsignedWord = UInt8
+#else
 public typealias SignedWord = Int
 public typealias UnsignedWord = UInt
+#endif
 
 struct TinyWord: Hashable, RawRepresentable {
+#if MICRO_WORD
+    var x7: UInt7
+#else
 #if _pointerBitWidth(_64)
     var x32: UInt32
     var x16: UInt16
@@ -14,12 +22,16 @@ struct TinyWord: Hashable, RawRepresentable {
 #else
 #error("Unknown platform")
 #endif
+#endif
 
     static var bitWidth: Int { SignedWord.bitWidth - 1 }
 
     static var zero: Self { .init() }
 
     private init() {
+#if MICRO_WORD
+        x7 = .x0000000
+#else
 #if _pointerBitWidth(_64)
         x32 = 0
         x16 = 0
@@ -32,6 +44,7 @@ struct TinyWord: Hashable, RawRepresentable {
 #else
 #error("Unknown platform")
 #endif
+#endif
     }
 
     init?(bitPattern: UnsignedWord) {
@@ -41,6 +54,9 @@ struct TinyWord: Hashable, RawRepresentable {
     init?(rawValue: SignedWord) {
         let maxMagnitude: SignedWord = (1 << (SignedWord.bitWidth - 2))
         if rawValue >= maxMagnitude || rawValue < -maxMagnitude { return nil }
+#if MICRO_WORD
+        x7 = UInt7(rawValue: UInt8(bitPattern: rawValue) & 0x7F)!
+#else
 #if _pointerBitWidth(_64)
         x32 = UInt32(truncatingIfNeeded: rawValue)
         x16 = UInt16(truncatingIfNeeded: rawValue >> 32)
@@ -53,6 +69,7 @@ struct TinyWord: Hashable, RawRepresentable {
 #else
 #error("Unknown platform")
 #endif
+#endif
     }
 
     var bitWidth: Int {
@@ -64,6 +81,10 @@ struct TinyWord: Hashable, RawRepresentable {
     }
 
     var bitPattern: UnsignedWord {
+#if MICRO_WORD
+        var bitPattern = x7.rawValue
+        bitPattern |= UnsignedWord(x7.rawValue & 0x40) << 1
+#else
 #if _pointerBitWidth(_64)
         var bitPattern = UnsignedWord(x32)
         bitPattern |= UnsignedWord(x16) << 32
@@ -77,6 +98,7 @@ struct TinyWord: Hashable, RawRepresentable {
         bitPattern |= UnsignedWord(x7.rawValue & 0x40) << 25
 #else
 #error("Unknown platform")
+#endif
 #endif
         return bitPattern
     }

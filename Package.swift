@@ -11,6 +11,12 @@ let package = Package(
             name: "AnyInt",
             targets: ["AnyInt"]
         ),
+        .plugin(
+            name: "CopyFiles",
+            targets: [
+                "CopyFiles"
+            ]
+        )
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -22,5 +28,24 @@ let package = Package(
                 "AnyInt"
             ]
         ),
+        .target(
+            name: "AnyInt_MicroWord",
+            swiftSettings: [
+                .define("MICRO_WORD")
+            ],
+            plugins: [
+                .plugin(name: "CopyFiles"),
+            ]
+        ),
+        .testTarget(
+            name: "AnyIntFuzzingTests",
+            dependencies: [
+                "AnyInt_MicroWord"
+            ]
+        ),
+        .plugin(
+            name: "CopyFiles",
+            capability: .buildTool()
+        )
     ]
 )
