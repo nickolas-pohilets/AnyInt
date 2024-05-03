@@ -57,7 +57,13 @@ public struct AnyInt: Hashable, SignedInteger {
     var hexDescription: String {
         storage.withWords { words in
             "0x" + (0..<words.count).reversed().map { i in
-                String(words[i], radix: 16, uppercase: false)
+                let digits = String(words[i], radix: 16, uppercase: false)
+                var result: String = ""
+                for _ in 0..<(UnsignedWord.bitWidth / 4 - digits.count) {
+                    result += "0"
+                }
+                result += digits
+                return result
             }.joined(separator: "_")
         }
     }

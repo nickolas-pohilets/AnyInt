@@ -145,7 +145,7 @@ extension AnyInt: BinaryInteger {
             let remainder = TinyWord(rawValue: lhsTiny.rawValue % rhsTiny.rawValue)!
             return (quotient: quotient, remainder: AnyInt(inline: remainder))
         }
-        let quotientBitWidth = dividend.bitWidth - self.bitWidth + 2
+        let quotientBitWidth = Swift.max(1, dividend.bitWidth - self.bitWidth + 2)
         let quotient = AnyIntBuffer.create(bits: quotientBitWidth)
 
         let dividerMagnitude = self.magnitude
@@ -168,17 +168,17 @@ extension AnyInt: BinaryInteger {
             }
             quotient.withPointerToElements { quotientElements in
                 dividerMagnitude.storage.withWords { dividerWords in
-                    let dividerHigh = dividerWords[bitOffset: dividerWords.bitWidth - 1 - UnsignedWord.bitWidth]
-                    let dividerHighSecond = dividerWords[bitOffset: dividerWords.bitWidth - 1 - 2 * UnsignedWord.bitWidth]
+                    let dividerHigh = dividerWords[bitOffset: dividerWords.unsignedBitWidth - UnsignedWord.bitWidth]
+                    let dividerHighSecond = dividerWords[bitOffset: dividerWords.unsignedBitWidth - 2 * UnsignedWord.bitWidth]
                     for i in (0..<quotientElements.count).reversed() {
                         let remainderWords = WordsView(remainderElements)
-                        let guessDividendHigh = remainderWords[bitOffset: dividerWords.bitWidth - 1 + UnsignedWord.bitWidth * i]
+                        let guessDividendHigh = remainderWords[bitOffset: dividerWords.unsignedBitWidth + UnsignedWord.bitWidth * i]
                         var qHat: UnsignedWord
                         if guessDividendHigh >= dividerHigh {
                             qHat = UnsignedWord.max
                         } else {
-                            let guessDividendMid = remainderWords[bitOffset: dividerWords.bitWidth - 1 + UnsignedWord.bitWidth * (i - 1)]
-                            let guessDividendLow = remainderWords[bitOffset: dividerWords.bitWidth - 1 + UnsignedWord.bitWidth * (i - 2)]
+                            let guessDividendMid = remainderWords[bitOffset: dividerWords.unsignedBitWidth + UnsignedWord.bitWidth * (i - 1)]
+                            let guessDividendLow = remainderWords[bitOffset: dividerWords.unsignedBitWidth + UnsignedWord.bitWidth * (i - 2)]
 
                             let guessDividend = (high: guessDividendHigh, low: guessDividendMid)
                             let t = dividerHigh.dividingFullWidth(guessDividend)
@@ -244,7 +244,7 @@ extension AnyInt: BinaryInteger {
                             }
                             assert(carry)
                             if k < remainderElements.count {
-                                let t = remainderElements[k].subtractingReportingOverflow(carry ? 1 : 0)
+                                let t = remainderElements[k].addingReportingOverflow(carry ? 1 : 0)
                                 remainderElements[k] = t.partialValue
                                 carry = t.overflow
                             }

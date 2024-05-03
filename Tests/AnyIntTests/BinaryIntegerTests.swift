@@ -165,6 +165,14 @@ final class BinaryIntegerTests: XCTestCase {
         verify(0x3fffffffffffffff, divisor: 7, quotient: 0x924924924924924, remainder: 3)
         verify(0x7fffffffffffffff, divisor: 1, quotient: 0x7fffffffffffffff, remainder: 0)
         verify(0x8000000000000000, divisor: 1, quotient: 0x8000000000000000, remainder: 0)
-        verify(0x7688c8b373d86489f362fcc72dd74724a1a044e3c17a, divisor: 0x219842895789347598374981, quotient: 0x387426127469123098308, remainder: 0x37272)
+        verify(0x7688c8b373d86489f362fcc72dd74724a1a044e3c17a, divisor: 0x219842895789347598374981,
+               quotient: 0x387426127469123098308, remainder: 0x37272)
+        verify(0, divisor: 0x219842895789347598374981, quotient: 0, remainder: 0)
+        verify(0x7688c8b373d86489f362fcc72dd74724a1a044e3c17a, divisor: 0x8000000000000000,
+               quotient: 0xed119166e7b0c913e6c5f98e5bae, remainder: 0x4724a1a044e3c17a)
+        verify(0x18943b1891ca1481075d6800000000003128763123942901dd9249cedc6bd6fdf14540000000000000000,
+               divisor: 0x8000000000000000_0000000000000000_ffffffffffffffff,
+               quotient: 0x31287631_239429020ebac_ffffffffffffffff,
+               remainder: 0x7fffffffffffffff0000000000000001ffffffffffffffff)
     }
 }

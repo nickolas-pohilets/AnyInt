@@ -21,6 +21,10 @@ struct WordsView {
         return (count - 1) * UnsignedWord.bitWidth + signWord.usedBits
     }
 
+    var unsignedBitWidth: Int {
+        return count * UnsignedWord.bitWidth - buffer[count - 1].leadingZeroBitCount
+    }
+
     var signWord: SignedWord {
         return SignedWord(bitPattern: buffer[count - 1])
     }

@@ -14,6 +14,7 @@ final class AnyIntBuffer: ManagedBuffer<AnyIntBufferHeader, UnsignedWord>, Hasha
     }
 
     static func create(bits: Int) -> AnyIntBuffer {
+        precondition(bits > 0)
         let words = (bits + UnsignedWord.bitWidth - 1) / UnsignedWord.bitWidth
         let buffer = AnyIntBuffer.create(minimumCapacity: words) { _ in
             AnyIntBufferHeader(count: words)
