@@ -29,6 +29,16 @@ public struct AnyInt: Hashable, SignedInteger {
         }
     }
 
+    public init(words: [UnsignedWord]) {
+        let buffer = AnyIntBuffer.create(bits: words.count * UnsignedWord.bitWidth)
+        buffer.withUnsafeMutablePointerToElements { ptr in
+            for i in 0..<words.count {
+                ptr[i] = words[i]
+            }
+        }
+        self.init(normalising: buffer)
+    }
+
     public var isZero: Bool {
         if case .inline(.zero) = storage {
             return true

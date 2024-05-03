@@ -9,15 +9,16 @@ enum AnyIntStorage: Hashable {
         }
     }
 
-    static func create<W: RandomAccessCollection<UnsignedWord>>(words: W, isSigned: Bool) -> Self where W.Index == Int {
+    static func create<W: RandomAccessCollection<UInt>>(words: W, isSigned: Bool) -> Self where W.Index == Int {
+        let adapter = UIntToWordsAdapter(base: words)
         if isSigned {
-            return create(signed: words)
+            return create(signed: adapter)
         } else {
-            return create(unsigned: words)
+            return create(unsigned: adapter)
         }
     }
 
-    static func create<W: RandomAccessCollection<UnsignedWord>>(signed words: W) -> Self where W.Index == Int {
+    private static func create<W: RandomAccessCollection<UInt>>(signed words: UIntToWordsAdapter<W>) -> Self where W.Index == Int {
         if words.isEmpty {
             return .inline(.zero)
         }
@@ -47,7 +48,7 @@ enum AnyIntStorage: Hashable {
         return .buffer(buffer)
     }
 
-    static func create<W: RandomAccessCollection<UnsignedWord>>(unsigned words: W) -> Self where W.Index == Int {
+    private static func create<W: RandomAccessCollection<UInt>>(unsigned words: UIntToWordsAdapter<W>) -> Self where W.Index == Int {
         var k: Int = words.count
         while k > 0 && words[k - 1] == 0 {
             k -= 1
@@ -120,5 +121,21 @@ enum AnyIntStorage: Hashable {
         case .inline: return nil
         case .buffer(let buffer): return buffer
         }
+    }
+}
+
+private struct UIntToWordsAdapter<W: RandomAccessCollection<UInt>> where W.Index == Int {
+    let base: W
+
+    var isEmpty: Bool {
+        return base.isEmpty
+    }
+
+    var count: Int {
+        base.count * UInt.bitWidth / UnsignedWord.bitWidth
+    }
+
+    subscript(index: Int) -> UnsignedWord {
+        return resizedWord(index: index, as: UnsignedWord.self) { base[$0] }
     }
 }

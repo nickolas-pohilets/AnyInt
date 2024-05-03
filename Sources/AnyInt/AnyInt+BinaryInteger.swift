@@ -1,7 +1,10 @@
 extension AnyInt: BinaryInteger {
     public var words: [UInt] {
-        storage.withWords { w in
-            (0..<w.count).map { w[$0 ] }
+        storage.withWords { (w: WordsView) -> [UInt] in
+            let k = (w.count * UnsignedWord.bitWidth + UInt.bitWidth - 1) / UInt.bitWidth
+            return (0..<k).map { (index) -> UInt in
+                resizedWord(index: index, as: UInt.self) { w[$0] }
+            }
         }
     }
 
