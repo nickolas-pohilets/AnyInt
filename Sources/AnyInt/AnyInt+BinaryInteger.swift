@@ -21,8 +21,30 @@ extension AnyInt: BinaryInteger {
     }
 
     public init?<T>(exactly source: T) where T : BinaryFloatingPoint {
+        let result: Self? = .fromFloatingPoint(
+            source: source,
+            onInfinite: { nil },
+            allowFractional: false,
+            onSuccess: { .some($0) }
+        )
+        guard let result else { return nil }
+        self = result
+    }
+    
+    public init<T>(_ source: T) where T : BinaryFloatingPoint {
+        self = .fromFloatingPoint(
+            source: source,
+            onInfinite: { () -> AnyInt in
+                fatalError("\(T.self) value cannot be converted to AnyInt because it is either infinite or NaN")
+            },
+            allowFractional: true,
+            onSuccess: { $0 }
+        )
+    }
+
+    private static func fromFloatingPoint<T, R>(source: T, onInfinite: () -> R, allowFractional: Bool, onSuccess: (Self) -> R) -> R where T : BinaryFloatingPoint {
         if !source.isFinite {
-            return nil
+            return onInfinite()
         }
         var significant = Self(exactly: source.significandBitPattern)
         if source.isNormal {
@@ -31,7 +53,7 @@ extension AnyInt: BinaryInteger {
 
         var exponent = Self(exactly: source.exponentBitPattern)
         if exponent.isZero && significant.isZero {
-            self = .zero
+            return onSuccess(.zero)
         } else {
             // Subtract bias
             exponent -= (Self.one << (T.exponentBitCount - 1) - .one)
@@ -39,21 +61,19 @@ extension AnyInt: BinaryInteger {
             exponent -= Self(T.significandBitCount)
 
             if exponent.isNegative && -exponent > significant.trailingZeroBitCount {
-                return nil
+                if !allowFractional {
+                    return onInfinite()
+                }
             }
 
             significant <<= exponent
             if source.sign == .minus {
                 significant.negate()
             }
-            self = significant
+            return onSuccess(significant)
         }
     }
-    
-    public init<T>(_ source: T) where T : BinaryFloatingPoint {
-        fatalError()
-    }
-    
+
     public var trailingZeroBitCount: Int {
         if isZero { return bitWidth }
         return storage.withWords { words in

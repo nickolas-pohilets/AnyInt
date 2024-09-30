@@ -176,7 +176,7 @@ final class BinaryIntegerTests: XCTestCase {
                remainder: 0x7fffffffffffffff0000000000000001ffffffffffffffff)
     }
 
-    func testFromFloatingPoint() throws {
+    func testFromFloatingPointExact() throws {
         guard #available(macOS 13.3, *) else { throw XCTSkip() }
         func verify(source: Float, expected: AnyInt?) {
             do {
@@ -198,6 +198,29 @@ final class BinaryIntegerTests: XCTestCase {
         verify(source: .infinity, expected: nil)
         verify(source: .leastNormalMagnitude, expected: nil)
         verify(source: .leastNonzeroMagnitude, expected: nil)
+        verify(source: .greatestFiniteMagnitude, expected: 0xffffff0000000000_0000000000000000)
+    }
+
+    func testFromFloatingPointRoundingTowardsZero() throws {
+        guard #available(macOS 13.3, *) else { throw XCTSkip() }
+        func verify(source: Float, expected: AnyInt) {
+            do {
+                let converted = AnyInt(source)
+                XCTAssertEqual(converted.hexDescription, expected.hexDescription)
+            }
+            do {
+                let converted = AnyInt(-source)
+                XCTAssertEqual(converted.hexDescription, (-expected).hexDescription)
+            }
+        }
+        verify(source: 0, expected: 0)
+        verify(source: 0.5, expected: 0)
+        verify(source: 0.999999, expected: 0)
+        verify(source: 4, expected: 4)
+        verify(source: 123, expected: 123)
+        verify(source: 123456786051166514360985072406712287232, expected: 123456786051166514360985072406712287232)
+        verify(source: .leastNormalMagnitude, expected: 0)
+        verify(source: .leastNonzeroMagnitude, expected: 0)
         verify(source: .greatestFiniteMagnitude, expected: 0xffffff0000000000_0000000000000000)
     }
 }
