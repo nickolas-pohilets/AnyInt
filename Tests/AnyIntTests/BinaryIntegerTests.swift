@@ -175,4 +175,30 @@ final class BinaryIntegerTests: XCTestCase {
                quotient: 0x31287631_239429020ebac_ffffffffffffffff,
                remainder: 0x7fffffffffffffff0000000000000001ffffffffffffffff)
     }
+
+    func testFromFloatingPoint() throws {
+        guard #available(macOS 13.3, *) else { throw XCTSkip() }
+        func verify(source: Float, expected: AnyInt?) {
+            do {
+                let converted = AnyInt(exactly: source)
+                XCTAssertEqual(converted?.hexDescription, expected?.hexDescription)
+            }
+            do {
+                let converted = AnyInt(exactly: -source)
+                XCTAssertEqual(converted?.hexDescription, expected.map { (-$0).hexDescription })
+            }
+        }
+        verify(source: 0, expected: 0)
+        verify(source: 0.5, expected: nil)
+        verify(source: 0.999999, expected: nil)
+        verify(source: 4, expected: 4)
+        verify(source: 123, expected: 123)
+        verify(source: 123456786051166514360985072406712287232, expected: 123456786051166514360985072406712287232)
+        verify(source: .nan, expected: nil)
+        verify(source: .infinity, expected: nil)
+        verify(source: .leastNormalMagnitude, expected: nil)
+        verify(source: .leastNonzeroMagnitude, expected: nil)
+        verify(source: .greatestFiniteMagnitude, expected: 0xffffff0000000000_0000000000000000)
+    }
 }
+ 

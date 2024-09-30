@@ -21,7 +21,33 @@ extension AnyInt: BinaryInteger {
     }
 
     public init?<T>(exactly source: T) where T : BinaryFloatingPoint {
-        fatalError()
+        if !source.isFinite {
+            return nil
+        }
+        var significant = Self(exactly: source.significandBitPattern)
+        if source.isNormal {
+            significant += (Self.one << T.significandBitCount)
+        }
+
+        var exponent = Self(exactly: source.exponentBitPattern)
+        if exponent.isZero && significant.isZero {
+            self = .zero
+        } else {
+            // Subtract bias
+            exponent -= (Self.one << (T.exponentBitCount - 1) - .one)
+            // Compensate for moving the point from highest bit to lowest bit
+            exponent -= Self(T.significandBitCount)
+
+            if exponent.isNegative && -exponent > significant.trailingZeroBitCount {
+                return nil
+            }
+
+            significant <<= exponent
+            if source.sign == .minus {
+                significant.negate()
+            }
+            self = significant
+        }
     }
     
     public init<T>(_ source: T) where T : BinaryFloatingPoint {
