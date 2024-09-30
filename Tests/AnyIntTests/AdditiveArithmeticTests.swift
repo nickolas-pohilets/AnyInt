@@ -3,7 +3,6 @@ import XCTest
 
 final class AdditiveArithmeticTests: XCTestCase {
     func testAddition() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         do {
             let a = AnyInt(integerLiteral: 0x2874872316835231) + AnyInt(integerLiteral: 0x178b78dce97cadce)
             XCTAssertEqual(a, AnyInt(integerLiteral: 0x3fffffffffffffff))
@@ -52,7 +51,6 @@ final class AdditiveArithmeticTests: XCTestCase {
     }
 
     func testSubstraction() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         do {
             let a = AnyInt(integerLiteral: 0x2874872316835231) - AnyInt(integerLiteral: -0x178b78dce97cadce)
             XCTAssertEqual(a, AnyInt(integerLiteral: 0x3fffffffffffffff))

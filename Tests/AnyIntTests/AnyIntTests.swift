@@ -26,7 +26,6 @@ final class AnyIntTests: XCTestCase {
     }
 
     func testIntegerLiteral() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         var a: AnyInt = 0
         XCTAssertEqual(a, AnyInt(SignedWord(0)))
         a = -1

@@ -3,7 +3,6 @@ import XCTest
 
 final class BinaryIntegerTests: XCTestCase {
     func testTrailingZeroBitCount() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         XCTAssertEqual(AnyInt(0).trailingZeroBitCount, 1)
         XCTAssertEqual(AnyInt(0).bitWidth, 1)
         XCTAssertEqual(AnyInt(1).trailingZeroBitCount, 0)
@@ -29,7 +28,6 @@ final class BinaryIntegerTests: XCTestCase {
     }
 
     func testInversion() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         func verify(_ value: AnyInt, expected: AnyInt) {
             XCTAssertEqual((~value).hexDescription, expected.hexDescription)
             XCTAssertEqual((~expected).hexDescription, value.hexDescription)
@@ -41,7 +39,6 @@ final class BinaryIntegerTests: XCTestCase {
     }
 
     func testBitwiseAnd() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         func verify(_ lhs: AnyInt, _ rhs: AnyInt, expected: AnyInt) {
             XCTAssertEqual((lhs & rhs).hexDescription, expected.hexDescription)
             XCTAssertEqual((rhs & lhs).hexDescription, expected.hexDescription)
@@ -60,7 +57,6 @@ final class BinaryIntegerTests: XCTestCase {
     }
 
     func testBitwiseOr() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         func verify(_ lhs: AnyInt, _ rhs: AnyInt, expected: AnyInt) {
             XCTAssertEqual((lhs | rhs).hexDescription, expected.hexDescription)
             XCTAssertEqual((rhs | lhs).hexDescription, expected.hexDescription)
@@ -79,7 +75,6 @@ final class BinaryIntegerTests: XCTestCase {
     }
 
     func testBitwiseXor() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         func verify(_ lhs: AnyInt, _ rhs: AnyInt, expected: AnyInt) {
             XCTAssertEqual((lhs ^ rhs).hexDescription, expected.hexDescription)
             XCTAssertEqual((rhs ^ lhs).hexDescription, expected.hexDescription)
@@ -98,7 +93,6 @@ final class BinaryIntegerTests: XCTestCase {
     }
 
     func testShift() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         func verify(_ value: AnyInt, shift: Int, left: AnyInt, right: AnyInt) {
             do {
                 let t = value << shift
@@ -144,7 +138,6 @@ final class BinaryIntegerTests: XCTestCase {
     }
 
     func testDivision() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         func verifyImpl(_ dividend: AnyInt, _ divisor: AnyInt, quotient: AnyInt, remainder: AnyInt) {
             do {
                 let (q, r) = divisor.dividing(dividend)
@@ -177,7 +170,6 @@ final class BinaryIntegerTests: XCTestCase {
     }
 
     func testFromFloatingPointExact() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         func verify(source: Float, expected: AnyInt?) {
             do {
                 let converted = AnyInt(exactly: source)
@@ -202,7 +194,6 @@ final class BinaryIntegerTests: XCTestCase {
     }
 
     func testFromFloatingPointRoundingTowardsZero() throws {
-        guard #available(macOS 13.3, *) else { throw XCTSkip() }
         func verify(source: Float, expected: AnyInt) {
             do {
                 let converted = AnyInt(source)
