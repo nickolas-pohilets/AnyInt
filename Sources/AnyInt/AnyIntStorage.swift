@@ -122,6 +122,20 @@ enum AnyIntStorage: Hashable {
         case .buffer(let buffer): return buffer
         }
     }
+
+    mutating func isUniqueBuffer() -> Bool {
+        switch self {
+        case .inline:
+            return false
+        case .buffer(var buffer):
+            // Hack for maintaining reference count value
+            // See https://forums.swift.org/t/in-place-mutation-of-an-enum-associated-value/11747
+            self = .inline(.zero)
+            let result = isKnownUniquelyReferenced(&buffer)
+            self = .buffer(buffer)
+            return result
+        }
+    }
 }
 
 private struct UIntToWordsAdapter<W: RandomAccessCollection<UInt>> where W.Index == Int {
